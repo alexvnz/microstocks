@@ -1,0 +1,90 @@
+/* CSS declarations go here */
+.thumbnail {
+	height:500px;
+	word-wrap:break-word;
+}
+
+.thumbnail-img{
+	max-height:200px;
+}
+
+.thumbnail-sm {
+	height:60px;
+	word-wrap:break-word;
+}
+
+.thumbnail-img-sm {
+	max-height:60px;
+}
+
+body{
+	padding-top:60px;
+	background-color:white;
+}
+
+.right{
+	text-align:right;
+}
+
+.single-img{
+	max-width:100%;
+}
+
+table{
+    text-align:center;
+    border:1px;
+}
+
+.dok{
+    color: green;
+}
+
+.tbl{
+	padding-bottom:72px;
+}
+
+input[type="number"]{
+	width:100px;
+	margin-bottom:12px;
+}
+
+.uf{
+	padding:20px;
+}
+
+.dwns{
+	padding:8px;
+}
+
+.pieChartDiv{
+	width:360px;
+	height:400px;
+}
+
+.tooltip {   
+  position: absolute;           
+  text-align: center;           
+  width: 100px;                  
+  height: 100px;                 
+  padding: 5px;             
+  font: 12px sans-serif;        
+  background: lightsteelblue;   
+  border: 0px;      
+  border-radius: 8px;
+  pointer-events: none;         
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}

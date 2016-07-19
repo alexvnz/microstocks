@@ -1,0 +1,422 @@
+<head>
+  <title>Microstock statistics</title>
+</head>
+
+<body>
+
+</body>
+
+<template name="ApplicationLayout">
+  {{> yield "navbar"}}
+  {{> yield "main"}}
+</template>
+
+<template name="welcome">
+  <div class="container">
+    <div class="jumbotron">
+      <h1>{{header}} {{username}}</h1>
+      <a href="/images" class="btn btn-info">ENTER</a>
+    </div>
+  </div>
+</template> 
+
+<template name="navbar">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <ul class="nav navbar-nav navbar-right">
+          <div class="btn-group" data-toggle="buttons">
+            <button class="btn btn-default active" id="gb">
+              <img src="gb.png" width="24" height="24"/>
+            </button>
+            <button class="btn btn-default" id="ua" >
+              <img src="ua.png" width="24" height="24"/>
+            </button>
+          </div>
+    			{{> loginButtons}} <!-- here -->
+    		</ul>
+    </div>
+  </nav>
+</template>
+
+<template name="uploadForm">
+  <div class="row uf">
+    <div class="col-sm-9 upl">
+      <input type="file" id="file" required>
+    </div>
+    <div class="col-sm-3">
+      <input class="btn btn-primary" type="submit" value="upload">
+    </div>
+  </div>
+</template>
+
+<template name="image_add_form">
+  <div class="modal fade" id="image_add_form">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">
+            {{header.hdr}}
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            {{> uploadForm}}
+          </div>
+          {{#if uploadStart}}
+            {{#if uploadedImage.url}}
+              <img src='{{uploadedImage.url}}' width='100px' alt=""/>
+            {{else}}
+              <p>Please wait... File is loading... <span class='glyphicon glyphicon-refresh glyphicon-refresh-animate'></span></p>
+            {{/if}}
+          {{/if}}
+<!-- the code for tomi:upload-server         {{> upload_bootstrap fileTypes='.jpg' multiple=false callbacks=myCallbacks}} -->
+          <form class="js-add-image">
+            <div class="form-group">
+              <input type="hidden" class="form-control" id="img_id" value="{{uploadedImage._id}}" name="img_id"/>
+            </div>
+            <div class="form-group">
+              <input type="hidden" class="form-control" id="img_src" value="{{uploadedImage.url}}" name="img_src"/>
+            </div>
+            <div class="form-group">
+              <label for="img_alt">{{header.name}}:</label>
+              <input class="form-control" id="img_alt" placeholder="{{header.name0}}" name="img_alt" required/>
+            </div>
+            <div class="form-group">
+              <label for="desc">{{header.desc}}:</label>
+              <textarea class="form-control" id="desc" placeholder="{{header.desc0}}" name="desc" required></textarea>
+            </div>
+            {{#if uploadedImage.url}}
+            <button class="btn btn-success">save</button>
+            {{/if}}
+          </form> 
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-warning" data-dismiss="modal">cancel</button>
+        </div>  
+      </div>
+    </div>
+  </div>
+</template>
+
+<template name="stock_add_form">
+  <div class="modal fade" id="stock_add_form">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">
+            {{header.hdr}}
+          </div>
+        </div>
+        <div class="modal-body">
+          <form class="js-add-stock">
+          <div class="form-group">
+           <label for="st_name">{{header.name}}:</label>
+            <input class="form-control" id="st_name" placeholder="{{header.name0}}" name="st_name" required/>
+          </div>
+            <button class="btn btn-success">save</button>
+          </form> 
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-warning" data-dismiss="modal">cancel</button>
+        </div>  
+      </div>
+    </div>
+  </div>
+</template>
+
+<template name="images">
+  <div>
+    {{> image_add_form}} 
+    {{> stock_add_form}}
+  </div>
+  
+  <div class="container js-container">
+    {{#if filtering_images}}
+      <h3>{{getFilter}}</h3>
+    {{/if}}
+    <div class="btn-group" role="group">
+      {{#if currentUser}}
+        <button class="btn btn-success js-show-image-form"><span class="glyphicon glyphicon-plus"></span> {{headers.addimage}}</button>
+        {{#if imagesExist}}
+        <button class="btn btn-info js-show-stock-form"><span class="glyphicon glyphicon-plus"></span> {{headers.addstock}}</button>
+        {{/if}}
+      {{/if}}
+      {{#if imagesExist}}
+      {{#if showDs}}
+      <button class="btn btn-success js-show-downloads"><span class="glyphicon glyphicon-save"></span> {{headers.hidedownloads}}</button>
+      {{else}}
+      <button class="btn btn-success js-show-downloads"><span class="glyphicon glyphicon-save"></span> {{headers.downloads}}</button>
+      {{/if}}
+      {{/if}}
+      {{#if filtering_images}}
+        <button class="btn btn-primary js-unset-image-filter"> {{headers.filter0}}</button>
+      {{/if}}
+      <button class="btn btn-warning js-filter1"> {{headers.filter1}}</button>
+      <button class="btn btn-default js-filter2"> {{headers.filter2}}</button>
+      <button class="btn btn-warning js-filter3"> {{headers.filter3}}</button>
+    </div>
+    <h2>
+    </h2>
+    <div class="tbl table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>{{headers.image}}</th>
+            <th>{{headers.name}}</th>
+            <th><a href="/keywords">{{headers.desc}}</a></th>
+            <th>{{headers.date}} <a href="#" class="orderByDate">
+              {{#if isOrdered}}
+                <span class="glyphicon glyphicon-triangle-top"></span>
+              {{else}}
+                <span class="glyphicon glyphicon-triangle-bottom"></span>
+              {{/if}}
+              </a>
+            </th>
+            {{#if showDs}}
+              <th><a href="/downloads">{{headers.ds}}</a> <a href="#" class="orderByDownloads">
+                {{#if isOrderedD}}
+                  <span class="glyphicon glyphicon-triangle-top"></span>
+                {{else}}
+                  <span class="glyphicon glyphicon-triangle-bottom"></span>
+                {{/if}}
+                </a>
+              </th>
+            {{/if}}
+            {{#each stock in stocks}}
+              <th><a href="/stock/{{stock.name}}">{{stock.name}}</a></th>
+            {{/each}}
+          </tr>
+        </thead>
+        <tbody>
+          {{#each image in images}}
+          <tr>
+            <td id="{{image._id}}">
+              <div class="thumbnail-sm">
+                <a href="/image/{{image._id}}">
+                  <img class="js-image thumbnail-img-sm img-responsive" src="{{image.img_src}}" alt="{{image.img_alt}}" />
+                </a>
+              </div>
+            </td>
+            <td>
+              {{image.img_alt}}
+            </td>
+            <td>{{image.desc}}</td>
+            <td>{{formatDate image.createdOn}}</td>
+            {{#if showDs}}
+              <td>{{image.total}}</td>
+            {{/if}}
+            {{#each image.stocks}}
+              <td>{{>state number=this.value cid=image._id stock=this.name}}
+                {{#if showDs}}
+                {{#if imageUploaded this.value}}
+                  <span class="bg-success dwns">{{this.downloads}}</span>
+                {{/if}}
+                {{/if}}
+              </td>
+            {{/each}}
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div><!-- / container -->
+</template>
+
+<template name="keywords">
+  <div class="container">
+    <h3>Statistics of used keywords</h3>
+    <div class="tbl table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>Keyword</th>
+            <th>Usage <a href="#" class="orderByUsage">
+              {{#if isOrderedU}}
+                <span class="glyphicon glyphicon-triangle-top"></span>
+              {{else}}
+                <span class="glyphicon glyphicon-triangle-bottom"></span>
+              {{/if}}
+              </a>
+            </th>
+            <th>Downloads <a href="#" class="orderByDownloads">
+              {{#if isOrderedD}}
+                <span class="glyphicon glyphicon-triangle-top"></span>
+              {{else}}
+                <span class="glyphicon glyphicon-triangle-bottom"></span>
+              {{/if}}
+              </a>
+            </th>
+            <th>Coeff <a href="#" class="orderByCoeff">
+              {{#if isOrderedC}}
+                <span class="glyphicon glyphicon-triangle-top"></span>
+              {{else}}
+                <span class="glyphicon glyphicon-triangle-bottom"></span>
+              {{/if}}
+              </a>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+          {{#each key in keys}}
+          <tr>
+            <td>{{key.key}}</td>
+            <td>{{key.usage}}</td>
+            <td>{{key.downloads}}</td>
+            <td>{{key.coeff}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    <a href="/images" class="btn btn-warning">return</a>
+  </div><!-- / container -->
+</template>
+
+<template name="stock">
+  <div class="container">
+    <h3>Statistics for {{this.stockname}}</h3>
+    <div class="row">
+    <div class="col-md-6">
+      {{> horizontalBarChart data=this.images}}
+    </div>
+    <div class="col-md-6">
+      <div class="well">
+        <p class="text-info">Total Not Uploaded <span class="badge">{{totalNotUploaded}}</span></p>
+        <p class="text-primary">Total Uploaded <span class="badge">{{totalUploaded}}</span></p>
+        <p class="text-danger">Total Not Approved <span class="badge">{{totalNotApproved}}</span></p>
+        <p class="text-success">Total Approved <span class="badge">{{totalApproved}}</span></p>
+      </div>
+    </div>
+    </div>
+    <div class="row">
+    <a href="/images" class="btn btn-warning">return</a>
+    </div>
+  </div>
+</template>
+
+<template name="horizontalBarChart">
+    <svg id="horizontalBarChart">
+    </svg>
+</template>
+
+<template name="downloads">
+  <div class="container">
+    <div class="row">
+    <div class="col-md-6 pieChartDiv">
+    <h3>Downloads By Stocks Statistics</h3>
+    {{> pieChart}}
+    </div>
+    <div class="col-md-6">
+    <h3>Downloads By Images Statistics</h3>
+    {{> scatterPlot}}
+    </div>
+    </div>
+    <div class="row">
+    <a href="/images" class="btn btn-warning">return</a>
+    </div>
+  </div>
+</template>
+
+<template name="scatterPlot">
+    <svg id="scatterPlot">
+    </svg>
+</template>
+
+<template name="pieChart">
+    <svg id="pieChart">
+    </svg>
+</template>
+
+<template name="state">
+  <div class="dropdown">
+      {{#if isBlack number}}
+        <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-ban-circle"></span>
+        <span class="caret"></span></button>
+      {{/if}}
+      {{#if isBlue number}}
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-upload"></span>
+        <span class="caret"></span></button>
+      {{/if}}
+      {{#if isRed number}}
+        <button class="btn btn-danger dropdown-toggle" type="button" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-remove-circle"></span>
+        <span class="caret"></span></button>
+      {{/if}}
+      {{#if isGreen number}}
+        <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-ok-circle"></span>
+        <span class="caret"></span></button>
+      {{/if}}
+    <ul class="dropdown-menu dropdown-menu-right">
+      <li><a href="#" class="js-state" id="0"><span class="glyphicon glyphicon-ban-circle"></span> {{states.state0}}</a></li>
+      <li><a href="#" class="js-state btn-primary" id="1"><span class="glyphicon glyphicon-upload"></span> {{states.state1}}</a></li>
+      <li><a href="#" class="js-state btn-danger" id="2"><span class="glyphicon glyphicon-remove-circle"></span> {{states.state2}}</a></li>
+      <li><a href="#" class="js-state btn-success" id="3"><span class="glyphicon glyphicon-ok-circle"></span> {{states.state3}}</a></li>
+    </ul>
+  </div>
+</template>
+
+<template name="image">
+  <div class="container">
+  <div>
+    {{> image_rem_confirm}}
+  </div>
+    <h2>{{header.hdr}} {{img_alt}}</h2>
+    <div class="row">
+      <div class="col-xs-9">
+        <form class="js-edit-image">
+          <div class="form-group">
+           <label for="img_alt">{{header.name}}:</label>
+            <input type="text" class="form-control" id="img_alt" value={{img_alt}} name="img_alt"/>
+          </div>
+          <div class="form-group">
+           <label for="desc">{{header.desc}}:</label>
+            <textarea class="form-control" id="desc" name="desc" value={{desc}}></textarea>
+          </div>
+          {{#each stock in stocks}}
+            {{#if imageUploaded stock.name}}
+              <div class="form-group">
+                <div class="col-xs-2">
+               <label for="dwnlds">{{stock.name}}:</label>
+               </div>
+                <div class="col-xs-10">
+                <input type="number" min='0' class="form-control" id="{{stock.name}}" name="{{stock.name}}" value='{{stock.downloads}}'/>
+               </div>
+              </div>
+            {{/if}}
+          {{/each}}
+          <button class="btn btn-success">{{header.save}}</button>
+        </form> 
+      </div>
+      <div class="col-xs-3">
+        <a href="/images"><img class="single-img" src="{{img_src}}"/></a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="right">
+        <button class="js-del-image btn btn-danger">{{header.image}} <span class="glyphicon glyphicon-remove"></span></button>
+        <a href="/images" class="btn btn-warning">cancel</a>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template name="image_rem_confirm">
+  <div class="modal fade" id="image_rem_confirm">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">
+          </div>
+        </div>
+        <div class="modal-body">
+          <p>{{confirm}}</p>
+          <button class="js-del-image btn btn-primary btn-ok">ok</button>
+          <button class="btn btn-warning" data-dismiss="modal">cancel</button>
+        </div>  
+      </div>
+    </div>
+  </div>
+</template>
