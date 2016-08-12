@@ -21,8 +21,6 @@ iron:router
 accounts-password
 momentjs:moment
 ian:accounts-ui-bootstrap-3
-tomi:upload-server
-tomi:upload-jquery
 cfs:standard-packages
 cfs:gridfs
 cfs:filesystem

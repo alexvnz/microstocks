@@ -15,7 +15,9 @@
   <div class="container">
     <div class="jumbotron">
       <h1>{{header}} {{username}}</h1>
-      <a href="/images" class="btn btn-info">ENTER</a>
+		{{#if showEnter}}
+			<a href="/images" class="btn btn-info">ENTER</a>
+		{{/if}}
     </div>
   </div>
 </template> 

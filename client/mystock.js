@@ -6,6 +6,15 @@ Router.configure({
   layoutTemplate: 'ApplicationLayout'
 });
 
+var mustBeSignedIn = function(pause) {
+  if (!(Meteor.user() || Meteor.loggingIn())) {
+    this.next();
+    Router.go('/');
+  } else {
+    this.next();
+  }
+};
+
 Router.route('/', function () {
   this.render('navbar', {
     to:"navbar"
@@ -84,6 +93,8 @@ Router.route('/image/:_id', function () {
     }
   });
 });
+
+Router.onBeforeAction(mustBeSignedIn, {except: ['/']});
 
 /// accounts config
 Accounts.ui.config({
@@ -392,12 +403,13 @@ Template.state.helpers({
   },
 });
 
-Template.body.helpers({username:function(){
+Template.body.helpers({
+	username:function(){
     if (Meteor.user()){
-      return Meteor.user().username;
+		return Meteor.user().username;
     }
     else {
-      return "anonymous internet user";
+		return "anonymous internet user";
     }
   }
 });
@@ -530,7 +542,14 @@ Template.welcome.helpers({
 	  }else{
 	    return 'Stock sites statistics';
 	  }
-	}
+	},
+    showEnter:function(){
+		if (Meteor.user()) {
+			return true;
+		}else {
+			return false;
+		}
+    }
 });
 
 Template.welcome.onRendered(function(){
