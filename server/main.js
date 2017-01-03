@@ -15,7 +15,7 @@ Meteor.startup(function () {
 //    uploadDir: process.env.PWD + './uploads',
 //    checkCreateDirectories: true //create the directories for you
 //  });
-if (Images.find().count() == 0){
+if (Images.find().count() === 0){
     	// count the images!
     	console.log("startup.js says: "+Images.find().count());
     }// end of if have no images
