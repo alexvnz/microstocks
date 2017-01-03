@@ -20,3 +20,6 @@ if (Images.find().count() === 0){
     	console.log("startup.js says: "+Images.find().count());
     }// end of if have no images
 });
+
+
+//some additional text here
